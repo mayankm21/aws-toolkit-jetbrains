@@ -9,7 +9,7 @@ import com.intellij.testGuiFramework.fixtures.IdeFrameFixture
 import com.intellij.testGuiFramework.impl.findComponentWithTimeout
 import com.intellij.testGuiFramework.impl.jList
 import com.intellij.testGuiFramework.util.step
-import com.intellij.ui.SimpleColoredComponent
+import javax.swing.JComponent
 
 fun IdeFrameFixture.clickMenuItem(predicate: (ActionMenuItem) -> Boolean) {
     findComponentWithTimeout<ActionMenuItem, IdeFrameImpl> { predicate(it) }.let { robot().click(it) }
@@ -17,10 +17,9 @@ fun IdeFrameFixture.clickMenuItem(predicate: (ActionMenuItem) -> Boolean) {
 
 fun IdeFrameFixture.configureConnection(profile: String, region: String) {
     step("Configure connection to profile: $profile, region $region") {
-        val component =
-            findComponentWithTimeout<SimpleColoredComponent, IdeFrameImpl> {
-                it.javaClass.name.contains("IdeStatusBarImpl") && it.toolTipText == "AWS Connection Settings"
-            }
+        val component = findComponentWithTimeout<JComponent, IdeFrameImpl> {
+            it.toolTipText == "AWS Connection Settings"
+        }
 
         robot().click(component)
         jList(region).clickItem(region)

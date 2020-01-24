@@ -22,6 +22,7 @@ import org.fest.swing.driver.JTreeLocation
 import org.junit.After
 import org.junit.Test
 import software.aws.toolkits.jetbrains.EmptyProjectTestCase
+import software.aws.toolkits.jetbrains.fixtures.awsExplorer
 import software.aws.toolkits.jetbrains.fixtures.clickMenuItem
 import software.aws.toolkits.jetbrains.fixtures.configureConnection
 import java.awt.Dimension
@@ -46,22 +47,35 @@ class S3BrowserTest : EmptyProjectTestCase() {
 
             configureConnection(profile, "Oregon (us-west-2)")
 
-            toolwindow("aws.explorer") {
+            awsExplorer {
                 activate()
+
                 step("Create bucket named $bucket") {
-                    jTree(S3_NAME).path(S3_NAME).rightClickPath()
+                    explorerTree().rightClickPath(S3_NAME)
+
                     clickMenuItem { it.text.startsWith(CREATE_BUCKET) }
+
                     dialog(CREATE_BUCKET) {
                         textfield(null).setText(bucket)
                         button(CREATE_BUTTON).click()
                     }
-                    waitAMoment()
+
+                    waitForTreeToBeLoaded()
                 }
 
                 step("Open editor for bucket $bucket") {
+//                    with(explorerTree()) {
+//                        expandPath(S3_NAME)
+//
+//                        waitForTreeToBeLoaded()
+//
+////                        path(S3_NAME, bucket).doubleClickPath()
+////
+////                        waitAMoment()
+//                    }
+
                     with(jTree(S3_NAME).expandPath(S3_NAME)) {
                         path(S3_NAME, bucket).doubleClickPath()
-                        waitAMoment()
                     }
                 }
             }
@@ -150,7 +164,9 @@ class S3BrowserTest : EmptyProjectTestCase() {
     fun cleanUp() {
         step("Delete bucket named $bucket") {
             ideFrame {
-                toolwindow("aws.explorer") {
+                awsExplorer {
+                    activate()
+
                     with(jTree(S3_NAME).expandPath(S3_NAME)) {
                         path(S3_NAME, bucket).rightClickPath()
                     }
